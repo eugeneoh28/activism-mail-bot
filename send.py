@@ -83,7 +83,8 @@ def main():
     print("\nNow that we've finished authenticating lets get started:\n")
 
     src_name = input("Type your name (first, last) and press enter: ")
-    src_email = input("Type your email and press enter: ")
+    print("\nWhat would you like the subject (title) of your email to be?")
+    subject = input("Type here and press enter (a random one will be generated if blank): ")
 
     recv = recipients.gen_recipients()
     while recv:
@@ -91,7 +92,7 @@ def main():
       dst_name = recipient[0]
       location = recipient[1]
       dst_email = recipient[2]
-      subject = messages.gen_subject()
+      subject = subject if subject else messages.gen_subject()
       body = messages.gen_body(src_name, dst_name, location)
 
       message = create_message(src_email, dst_email, subject, body)
@@ -102,8 +103,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-port = 465 # standard port for SMTP over SSL
-smtp_server = "smtp.gmail.com"
-
