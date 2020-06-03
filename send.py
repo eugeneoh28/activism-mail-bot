@@ -4,6 +4,8 @@ from __future__ import print_function
 from getpass import getpass
 from email.message import EmailMessage
 from email.mime.text import MIMEText
+import googleapiclient
+import google_auth_oauthlib
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -12,7 +14,10 @@ import pickle
 import os.path
 import messages, recipients, smtplib, ssl, time
 
-
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 def create_message(sender, to, subject, message_text):
   message = MIMEText(message_text)
@@ -34,8 +39,8 @@ def send_message(service, user_id, message):
     print('An error occurred: %s' % e)
     return None
 
-def print_email(sender, subject, body):
-  print('To: %s' % sender)
+def print_email(destination, subject, body):
+  print('To: %s' % destination)
   print('Subject: %s' % subject)
   print('Body: %s' % body)
 
@@ -72,7 +77,7 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                resource_path('credentials.json'), SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -81,8 +86,8 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     print("\nNow that we've finished authenticating lets get started:\n")
-
     src_name = input("Type your name (first, last) and press enter: ")
+    src_email = input("Type your email and press enter:")
     print("\nWhat would you like the subject (title) of your email to be?")
     subject = input("Type here and press enter (a random one will be generated if blank): ")
 
@@ -98,8 +103,8 @@ def main():
       message = create_message(src_email, dst_email, subject, body)
       send_message(service, "me", message)
       
-      print_email(src_email, dst_email, subject, body) # print if we get through without
-      time.sleep(0.2)
+      print_email(dst_email, subject, body) # print if we get through without
+      time.sleep(0.1)
 
 if __name__ == '__main__':
     main()
