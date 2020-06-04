@@ -19,10 +19,9 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-def create_message(sender, to, subject, message_text):
+def create_message(to, subject, message_text):
   message = MIMEText(message_text)
   message['to'] = to
-  message['from'] = sender
   message['subject'] = subject
   raw_message = base64.urlsafe_b64encode(message.as_string().encode("utf-8"))
   return {
@@ -87,7 +86,6 @@ def main():
 
     print("\nNow that we've finished authenticating lets get started:\n")
     src_name = input("Type your name (first, last) and press enter: ")
-    src_email = input("Type your email and press enter:")
     print("\nWhat would you like the subject (title) of your email to be?")
     subject = input("Type here and press enter (a random one will be generated if blank): ")
 
@@ -100,11 +98,13 @@ def main():
       subject = subject if subject else messages.gen_subject()
       body = messages.gen_body(src_name, dst_name, location)
 
-      message = create_message(src_email, dst_email, subject, body)
+      message = create_message(dst_email, subject, body)
       send_message(service, "me", message)
       
       print_email(dst_email, subject, body) # print if we get through without
       time.sleep(0.1)
+
+    print("Sweet thanks for sending the emails! you rock :)")
 
 if __name__ == '__main__':
     main()
